@@ -1,0 +1,10 @@
+@startuml Run Session sequence
+Entity Session
+participant ClaraParser
+
+activate ClaraParser 
+Session --> ClaraParser : applyCmdLine(argc,argv)
+ClaraParser --> Session : create cli
+Session --> ClaraParser : parse cli
+Session --> Session : run()
+@enduml

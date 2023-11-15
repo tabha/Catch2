@@ -1,0 +1,60 @@
+@startuml "Class Diagram"
+package Catch.Detail {
+    ' NonCopyable=NcpB
+    class NonCopyable  {
+        NcpB( NcpB const& ) = delete
+        NcpB( NcpB&& ) = delete
+        operator=(NcpB const& ) = delete
+        operator=(NcpB&& ) = delete
+
+        -NcpB() noexcept = default
+    }
+}
+
+package Catch.Clara{
+
+    class Parser{
+
+    }
+}
+
+package Catch {
+' Session=Sn
+class Session {
+    Sn()
+    ~Sn()
+    - m_cli
+    - m_configData 
+    - m_config 
+    - m_startupException : bool
+    void showHelp()
+    void libIdentify()
+    int applyCommandLine()
+    void useConfigData()
+    int run()
+    - int runInternal()
+}
+
+' Config
+class Config {
+
+}
+
+' ConfigData=CnfD
+struct ConfigData {
+    + listTest : bool
+    + listTags : bool
+    + listReporters : bool
+    .
+    .
+    .
+}
+}
+
+' Session is non copyable
+Catch.Session -u-|> Catch.Detail.NonCopyable : is
+Catch.Session::m_configData -l-*  Catch.ConfigData
+Catch.Session::m_cli -u-*  Catch.Clara.Parser
+Catch.Session::m_config -u-o  Catch.Config
+
+@enduml

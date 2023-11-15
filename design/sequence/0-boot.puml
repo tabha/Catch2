@@ -1,0 +1,9 @@
+@startuml "Start Up"
+Entity main 
+participant Session
+main -> main : registe leak detector
+
+main --> Session : start session 
+activate Session
+Session --> Session : run(argc,argv) 
+@enduml
