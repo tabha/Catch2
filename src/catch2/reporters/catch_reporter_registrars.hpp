@@ -23,7 +23,12 @@ namespace Catch {
 
         template <typename T, typename = void>
         struct has_description : std::false_type {};
-
+        
+        /**
+         * this check if the type T has a member function named getDescription
+         * this a way to check at compile-time whether  a given type'T' has a static
+         * member function named getDescription.
+        */
         template <typename T>
         struct has_description<
             T,

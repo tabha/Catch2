@@ -1,60 +1,121 @@
-@startuml "Class Diagram"
-package Catch.Detail {
-    ' NonCopyable=NcpB
-    class NonCopyable  {
-        NcpB( NcpB const& ) = delete
-        NcpB( NcpB&& ) = delete
-        operator=(NcpB const& ) = delete
-        operator=(NcpB&& ) = delete
+@startuml "Registry Diagram"
 
-        -NcpB() noexcept = default
-    }
+struct ReporterRegistryImpl{
+    Vector[] listeners
+    Map[] factories
 }
 
-package Catch.Clara{
 
-    class Parser{
-
-    }
+interface EventListenerFactory{
+    create()
+    getName()
+    getDescription()
 }
 
-package Catch {
-' Session=Sn
-class Session {
-    Sn()
-    ~Sn()
-    - m_cli
-    - m_configData 
-    - m_config 
-    - m_startupException : bool
-    void showHelp()
-    void libIdentify()
-    int applyCommandLine()
-    void useConfigData()
-    int run()
-    - int runInternal()
+interface IReporterFactory{
+    create(config)
+    getDescription()
 }
 
-' Config
-class Config {
 
+interface IRegistryHub {
+    getReporterRegistry()
+    getTestCaseRegsitry()
+    getTagAliasRegistry()
 }
 
-' ConfigData=CnfD
-struct ConfigData {
-    + listTest : bool
-    + listTags : bool
-    + listReporters : bool
-    .
-    .
-    .
-}
+interface IMutableRegistryHub{
+    registerReporter()
+    registerListener()
+    registerTest()
+    registerTranslator()
+    registerTagAlias()
 }
 
-' Session is non copyable
-Catch.Session -u-|> Catch.Detail.NonCopyable : is
-Catch.Session::m_configData -l-*  Catch.ConfigData
-Catch.Session::m_cli -u-*  Catch.Clara.Parser
-Catch.Session::m_config -u-o  Catch.Config
+interface ITestCaseRegistry{
+    getAllInfos()
+    getAllTests()
+    getAllTestsSorted()
+}
+
+interface ITestInvoker {
+    +invoke()
+}
+
+class TestCasehanlde{
+    - m_invoker
+    - m_info
+    + invoke()
+    + getTestCaseInfo()
+}
+
+struct TestCaseInfo{
+    - backingTags
+    - internalAppendTag()
+    + tag
+    + lineInfo
+    + properties
+    + name
+    + className
+    + isHiden()
+    + okToFail()
+    + expectedToFail()
+    + addFilenameTag()
+    + tagAsString()
+}
+
+class ReporterFactory implements IReporterFactory
+TestCasehanlde::m_invoker -l-o ITestInvoker
+TestCasehanlde::m_info --o TestCaseInfo
+
+class TestRegistry{
+    + registerTest()
+    - m_viewed_test_infos
+    - Object[] m_invokers
+    - Object[] m_handles
+    - Object[] m_owned_test_infos
+    - m_currentSortOrder
+    - m_sortedFunctions
+}
+
+class TestRegistry implements ITestCaseRegistry
+
+
+TestRegistry::m_invokers -u-> ITestInvoker
+
+TestRegistry::m_owned_test_infos -u-*TestCaseInfo
+TestRegistry::m_handles -r-> TestCasehanlde
+
+
+
+
+class ReporterRegistry{
+    + m_impl
+    + create()
+    + registerReporter()
+    + registerListener()
+    + getFactories()
+    + getListeners()
+}
+
+
+
+ReporterRegistry::m_impl -u-> ReporterRegistryImpl
+ReporterRegistryImpl::factories -u-> ReporterFactory
+ReporterRegistryImpl::listeners -u-> EventListenerFactory
+
+
+
+class RegistryHub {
+    - m_testCaseRegistry
+    - m_reporterRegistry
+    - m_exceptionTrans
+    - m_tagAl
+}
+
+class RegistryHub implements IRegistryHub
+class RegistryHub implements IMutableRegistryHub
+RegistryHub::m_reporterRegistry -u-> ReporterRegistry
+RegistryHub::m_testCaseRegistry -u-> TestRegistry
 
 @enduml

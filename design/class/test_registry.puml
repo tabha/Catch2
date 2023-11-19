@@ -1,0 +1,77 @@
+@startuml "Registry Diagram"
+
+interface ITestCaseRegistry{
+    getAllInfos()
+    getAllTests()
+    getAllTestsSorted()
+}
+
+interface ITestInvoker {
+    +invoke()
+}
+
+class TestCasehanlde{
+    - m_invoker
+    - m_info
+    + invoke()
+    + getTestCaseInfo()
+}
+
+note top of TestCasehanlde
+wrapper over the test case information and the case invoker
+Does not own either, and is specifically made
+to be cheap to copy around.
+end note
+
+struct TestCaseInfo{
+    - backingTags : String
+    + tag : StringReg[]
+    + lineInfo : SourceLineInfo
+    + properties
+    + name : String
+    + className : StringRef
+    + isHiden()
+    + okToFail()
+    + expectedToFail()
+    + addFilenameTag()
+    + tagAsString()
+    - internalAppendTag()
+}
+
+
+note right of TestCaseInfo::tag
+    is a vector of string references to backingTags
+end note
+
+class TestRegistry{
+    + registerTest()
+    - m_viewed_test_infos
+    - Object[] m_invokers
+    - Object[] m_handles
+    - Object[] m_owned_test_infos
+    - m_currentSortOrder
+    - m_sortedFunctions
+}
+
+note left of TestRegistry::registerTest  
+ takes a ref to TestCaseInfo and a ref to TestInvoker
+ a- add pair to handle list
+ b- add testcase to viewed_tests
+ c- add invoker to invokers list
+
+end note
+
+class TestRegistry implements ITestCaseRegistry
+
+
+
+TestRegistry::m_owned_test_infos -l-*TestCaseInfo
+TestRegistry::m_handles -r-* TestCasehanlde
+TestRegistry::m_invokers -u-o ITestInvoker
+
+
+TestCasehanlde::m_invoker -l-o ITestInvoker
+TestCasehanlde::m_info --o TestCaseInfo
+
+
+@enduml

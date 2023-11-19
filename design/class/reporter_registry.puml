@@ -1,0 +1,96 @@
+@startuml "Reporter Registry Diagram"
+
+struct ReporterRegistryImpl{
+    Vector[] listeners
+    Map[] factories
+}
+
+interface EventListenerFactory{
+    create()
+    getName()
+    getDescription()
+}
+
+interface IReporterFactory{
+    create(config)
+    getDescription()
+}
+
+struct ReporterPreferences{
+    + shouldRedirectStdOut : bool
+    + shouldReportAllAssertions : bool
+}
+
+ReporterFactory -d--|> IReporterFactory
+
+interface IEventListener {
+    # m_pref
+    # m_config
+    + getPrefs()
+    + noMatchingTestCase()
+    + reportInvalidTestSpect()
+    + testRunStarting()
+    + testCaseStarting()
+    + testCasePartialStarting()
+    + sectionStarting()
+    + benchmarkStarting()
+    + benchmarkPeparing()
+    + benchmarkEnded()
+    + assertionStarting()
+    + assertionEnded()
+    + sectionEnded()
+    + testRunEnded()
+    + skipTest()
+    + listReporters()
+    + listListeners()
+    + listTags()
+}
+
+class ReporterBase {
+
+}
+
+class StreamReporterBase {
+
+}
+
+class ConsoleReporter {
+
+}
+
+IEventListener::m_pref -u-* ReporterPreferences
+
+class ReporterBase implements IEventListener
+
+
+ConsoleReporter -u-|> StreamReporterBase
+StreamReporterBase -r-|> ReporterBase
+
+
+
+class ReporterRegistry{
+    + m_impl
+    + create()
+    + registerReporter()
+    + registerListener()
+    + getFactories()
+    + getListeners()
+}
+
+ReporterFactory -u-> ConsoleReporter
+
+class RegistryHub {
+    - m_reporterRegistry
+}
+
+RegistryHub::m_reporterRegistry -r-> ReporterRegistry
+
+
+ReporterRegistry::m_impl -r-> ReporterRegistryImpl
+ReporterRegistryImpl::factories -r-> ReporterFactory
+ReporterRegistryImpl::listeners -u-> EventListenerFactory
+
+
+
+
+@enduml

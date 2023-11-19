@@ -45,6 +45,7 @@ namespace Catch {
         std::vector<TestCaseInfo*> m_viewed_test_infos;
 
         std::vector<Detail::unique_ptr<ITestInvoker>> m_invokers;
+        // wrapper arround m_owned_test_infos and m_invokers
         std::vector<TestCaseHandle> m_handles;
         mutable TestRunOrder m_currentSortOrder = TestRunOrder::Declared;
         mutable std::vector<TestCaseHandle> m_sortedFunctions;
